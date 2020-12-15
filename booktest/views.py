@@ -144,6 +144,19 @@ class HeroDetailView(View):
                              'message': 'OK',
                              'hero': data})
 
-    def delete(self, request):
+    def delete(self, request, id):
         """ 删除指定的英雄人物数据(根据英雄ID) """
-        pass
+        try:
+            hero = HeroInfo.objects.get(id=id)
+        except HeroInfo.DoesNotExist:
+            return JsonResponse({'code': 400,
+                                 'message': '英雄数据不存在!'})
+        try:
+            hero.delete()
+        except Exception as e:
+            print(e)
+            return JsonResponse({'code': 400,
+                                 'message': '删除数据出错!'})
+
+        return JsonResponse({"code": 0,
+                             'message': 'OK'})
