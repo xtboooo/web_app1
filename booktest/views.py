@@ -79,9 +79,24 @@ class HeroListView(View):
 class HeroDetailView(View):
     """ 获取 修改 删除 指定的英雄人物数据"""
 
-    def get(self, request):
+    def get(self, request, id):
         """ 获取指定的英雄人物数据(根据英雄ID) """
-        pass
+        try:
+            hero = HeroInfo.objects.get(id=id)
+        except HeroInfo.DoesNotExist:
+            return JsonResponse({'code': 400,
+                                 'message': '请求英雄数据不存在'})
+        data = {
+            'id': hero.id,
+            'hname': hero.hname,
+            'hgender': hero.hgender,
+            'hcomment': hero.hcomment,
+            'hbook': hero.hbook.btitle,
+            'hbook_id': hero.hbook_id,
+        }
+        return JsonResponse({'code': 0,
+                             'message': 'OK',
+                             'hero': data})
 
     def put(self, request):
         """ 修改指定的英雄人物数据(根据英雄ID) """
