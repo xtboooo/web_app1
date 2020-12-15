@@ -98,9 +98,51 @@ class HeroDetailView(View):
                              'message': 'OK',
                              'hero': data})
 
-    def put(self, request):
+    def put(self, request, id):
         """ 修改指定的英雄人物数据(根据英雄ID) """
-        pass
+        try:
+            hero = HeroInfo.objects.get(id=id)
+        except HeroInfo.DoesNotExist:
+            return JsonResponse({'code': 400,
+                                 'message': '请求英雄数据不存在!'})
+        req_dict = json.loads(request.body)
+        hname = req_dict.get('hname')
+        hgender = req_dict.get('hgender')
+        hcomment = req_dict.get('hcomment')
+        hbook_id = req_dict.get('hbook_id')
+
+        if not all([hname, hcomment, hbook_id]):
+            return JsonResponse({'code': 400,
+                                 'message': '缺少必传参数!'})
+        if hgender is None:
+            return JsonResponse({'code': 40,
+                                 'message': '缺少必传参数!'})
+        try:
+            book = BookInfo.objects.get(id=hbook_id)
+        except BookInfo.DoesNotExist:
+            return JsonResponse({'code': 400,
+                                 'message': '图书数据不存在!'})
+        try:
+            hero.hname = hname
+            hero.hgender = hgender
+            hero.hcomment = hcomment
+            hero.hbook_id = hbook_id
+            hero.save()
+        except Exception as e:
+            print(e)
+            return JsonResponse({'code': 400,
+                                 'message': '更新数据出错!'})
+        data = {
+            'id': hero.id,
+            'hname': hero.hname,
+            'hgender': hero.hgender,
+            'hcomment': hero.hcomment,
+            'hbook': hero.hbook.btitle,
+            'hbook_id': hero.hbook_id,
+        }
+        return JsonResponse({'code': 0,
+                             'message': 'OK',
+                             'hero': data})
 
     def delete(self, request):
         """ 删除指定的英雄人物数据(根据英雄ID) """
